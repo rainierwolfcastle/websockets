@@ -27,9 +27,6 @@ SECRET_KEY = '6p=u)b47ybw0rc-n3e*074vikc)7)=vws3(r=y07l-pe@arq2)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = ['*']
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -68,6 +65,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -124,18 +122,28 @@ USE_TZ = True
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+ALLOWED_HOSTS = ['*']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'chat/static'),
+    os.path.join(PROJECT_ROOT, 'chat/static'),
 ]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+        "ROUTING": "websockets.routing.channel_routing",
+    },
+}
 
 # Logging
 LOGGING = {
@@ -157,15 +165,5 @@ LOGGING = {
             'propagate': False,
             'level': 'DEBUG',
         },
-    },
-}
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
-        },
-        "ROUTING": "websockets.routing.channel_routing",
     },
 }
